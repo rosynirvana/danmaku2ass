@@ -769,10 +769,12 @@ def tld(url):
         return 'acfun'
     elif 'bilibili.com' in url:
         return 'bilibili'
-    elif 'nicovideo' in url:
-        return 'nicovideo'
-    elif 'tucao.tv' in url:
-        return tucao
+
+    if 'komica.yucie' in url:
+        raise Exception('komica uses Cloudflare, nontrivial to bypass') 
+    if 'nicovideo' in url or 'tucao.tv' in url:
+        raise Exception('Not supported at this moment')
+
 
 @export
 def ReadComments(input_files, input_format, font_size=25.0, progress_callback=None):
