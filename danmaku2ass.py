@@ -746,6 +746,33 @@ def Danmaku2ASS(input_files, input_format, output_file, stage_width, stage_heigh
         if output_file and fo != output_file:
             fo.close()
 
+def fetch_remote_danmaku(url):
+    import tempfile
+    import time
+    import os.path
+    import importlib
+
+    module_name = tld(url)
+    m = importlib.import_module('.'.join(['sites', module_name]))
+    vid, dmk = m.get_danmaku(url)
+    out_fn = '_'.join([vid, str(int(time.time()))])
+    out_path = tempfile.gettempdir()
+    out = os.path.join(out_path, out_fn)
+    with open(out, 'w') as ofile:
+        ofile.write(dmk)
+    return out
+
+def tld(url):
+    if 'acfun.tv' in url:
+        return 'acfun'
+    elif 'acfun.cn' in url:
+        return 'acfun'
+    elif 'bilibili.com' in url:
+        return 'bilibili'
+    elif 'nicovideo' in url:
+        return 'nicovideo'
+    elif 'tucao.tv' in url:
+        return tucao
 
 @export
 def ReadComments(input_files, input_format, font_size=25.0, progress_callback=None):
@@ -759,6 +786,8 @@ def ReadComments(input_files, input_format, font_size=25.0, progress_callback=No
     for idx, i in enumerate(input_files):
         if progress_callback:
             progress_callback(idx, len(input_files))
+        if i.startswith('http://') or i.startswith('https://'):
+            i = fetch_remote_danmaku(i)
         with ConvertToFile(i, 'r', encoding='utf-8', errors='replace') as f:
             s = f.read()
             str_io = io.StringIO(s)
